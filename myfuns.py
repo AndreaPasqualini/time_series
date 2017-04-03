@@ -2,10 +2,196 @@
 Author:         Andrea Pasqualini
 Institution:    Bocconi University
 Created on:     December 25, 2016
-Last edited on: April 3, 2017
 Encoding:       UTF-8
 """
 import numpy as np
+from scipy import linalg as la
+# from scipy import signal as sg
+from scipy import stats as st
+
+def lag(y, p=1, missing=None):
+    """
+    Given a matrix of time series 'y', this function computes its lagged
+    version. The output will be of the same shape as 'y', so a 'missing' value
+    for the virtually discarded rows can be provided.
+    At its essence, this function is simply a wrapper for numpy.roll().
+
+    Parameters
+    ----------
+    y : float, numpy.ndarray
+         The set of time series to be lagged. Variables must be in columns,
+         with rows representing the observations. It must be that y.shape =
+         (T,N), where T is the number of observations and N is the number of
+         variables.
+    p : int (optional)
+         If the input is y_t, the output will be y_{t-p}. If a lead is to be
+         obtained instead of a lag, 'p' must be negative. Default value is '1',
+         so that the function would return the first lagged value of 'y'.
+    missing : float (optional)
+              A scalar value to replace rows to be discarded. Default is
+              numpy.NaN.
+
+    Returns
+    -------
+    ylag : float, numpy.ndarray
+           The lagged/led version of y, by 'p' lags/leads.
+    """
+    T = y.shape[0]  # no. of rows
+    # N = y.shape[1]  # no. of cols
+
+    if p > T or p < -(T+1):
+        raise ValueError('Number of lags inconsistent with no. of observations')
+
+    if missing is None:
+        missing = np.nan
+
+    ylag = np.roll(y, p, axis=0)
+    if p > 0:
+        ylag[:p, :] = missing  # NumPy's broadcasting is awesome!!
+    elif p < 0:
+        ylag[p:, :] = missing  # NumPy's broadcasting is awesome!!
+    else:
+        raise ValueError('p=0 is not a valid input value')
+    return ylag
+
+
+def lagcat(y, p, missing=None):
+    """
+    This function builds a matrix of regressors that would be typically
+    employed in VAR or VECM models.
+    At its essence, this function is a wrapper for myfuns.lag().
+    WARNING: if 'y' is a matrix of integers, the 'missing' parameter behaves
+             strangely.
+
+    Parameters
+    ----------
+    y : float, numpy.ndarray
+         A matrix with the time series of interest. It must satisfy
+         y.shape = (T,N), where T is the number of observations in time and
+         N is the number of variables.
+    p : int
+         The number of contiguous lags to be included in the final array.
+         At the moment, it must be positive and greater or equal to 1.
+         Hence this function currently supports only lagging and not leading.
+    missing : float (optional)
+              A scalar value to replace rows to be discarded. Default is
+              numpy.NaN.
+
+    Returns
+    -------
+    ylagcat : float, numpy.ndarray
+              A matrix with the lagged variables as specified by the parameter
+              'p'. It will satisfy ylagcat.shape = (T, N*p).
+    """
+    if p < 1:
+        raise ValueError('Parameter p must be at least 1')
+
+    T = y.shape[0]
+    N = y.shape[1]
+    ylagcat = np.empty((T, N*p), dtype=float)
+    for j in range(p):
+        ylagcat[:, (N*j):N*(j+1)] = lag(y, j+1, missing=missing)
+    return ylagcat
+
+
+def ols(y, x, const=True, everything=False):
+    """
+    Runs a Least-Squares regression of a vector y on a vector x.
+    The regression equation is specified as follows in matrix notation:
+    ---- LaTeX syntax ---------------------------------------------------------
+        y = x \beta + \epsilon
+    ---- End of LaTeX syntax --------------------------------------------------
+
+    Parameters
+    ----------
+    y : numpy.array
+         The vector on the LHS of the regression equation. It must satisfy
+         y.shape = (T,1) or y.shape = (T,), where T is the number of
+         observations available.
+    x : numpy.array
+         The matrix on the RHS of the regression equation. It must satisfy
+         x.shape = (T,K), where T is the number of observations available and K
+         is the number of regressors.
+    const : bool (optional)
+            Specifies whether a constant should be included in the regression
+            equation. If so, then the constant will be the first value of the
+            returned vector 'beta'. Default value is 'True'.
+    everything : bool (optional)
+                 Specifies whether the returned value of the function consists
+                 only of the vector of estimated coefficients (as opposed to
+                 the whole dictionary containing also diagnostics and other
+                 information). Default value is 'False'.
+
+    Returns
+    -------
+    beta : numpy.array
+           The vector of estimated coefficients. This is returned if
+           everything=False.
+    results : dict
+              A dictionary containing the following elements
+                  - beta: the vector of estimated coefficients
+                  - se: standard errors associated to beta
+                  - resid: the vector of estimation errors
+                  - fitted: the vector of fitted values
+                  - conf_int: 95% confidence intervals
+                  - tstat: t-statistics associated to beta
+                  - r2: R-squared of the regression
+                  - r2adj: adjusted R-squared of the regression
+                  - T: the number of observations used in the regression
+                  - K: the number of regressors
+                  - OTHER STUFF HERE
+              This is returned if everything=True.
+    """
+    T = y.shape[0]
+
+    if x.shape[0] != T:
+        raise ValueError('x and y have different no. of observations')
+
+    if const:
+        x = np.concatenate((np.ones((T, 1)), x), axis=1)
+
+    K = x.shape[1]
+    q, r = la.qr(x, mode='economic')
+    if T < 10000:       # prefer numerical accuracy over algorithm speed
+        inv_xx = la.solve(r.T * r, np.eye(K))  # (r'r) * a = I - solve for a
+    else:               # prefer algorithm speed over numerical accuracy
+        inv_xx = la.solve(x.T * x, np.eye(K))  # (x'x) * a = I - solve for a
+    beta = np.dot(inv_xx, np.dot(x.T, y))
+
+    if not everything:
+        return beta         # provide the estimate beta to the user and exit
+    else:
+        yhat = np.dot(x, beta)                  # fitted values
+        eps = y - yhat                          # regression residuals
+        sigma = np.dot(eps.T, eps) / (T-K)      # var-cov matrix of the residuals
+        std = np.sqrt(sigma * np.diag(inv_xx))  # standard deviation of beta
+        tcrit = st.t.ppf(0.025, T)              # critical val on student-t for bidirectional testing
+        conf_int = np.array([beta - tcrit * std,
+                             beta + tcrit * std])  # 95% confidence interval
+        tstat = beta / std                      # t-statistics
+        rss = np.dot(eps.T, eps)                # residual sum of squared
+        tss = np.dot((y - np.mean(y)).T, (y - np.mean(y)))  # total sum of squared
+        r2 = 1 - rss/tss                        # R-squared
+        arss = rss / (T-K)
+        atss = tss / (T-1)
+        if atss != 0:
+            r2adj = 1 - (arss / atss)         # adjusted R-squared
+        else:
+            r2adj = None
+        deps = eps[1:T] - eps[0:T-1]          # first difference of residuals
+        dw = np.dot(deps.T, deps) / np.dot(eps.T, eps)  # Durbin-Watson stat
+        results = {'beta': beta,
+                   'se': std,
+                   'fitted': yhat,
+                   'resid': eps,
+                   'sigma': sigma,
+                   'conf_int': conf_int,
+                   'tstat': tstat,
+                   'r2': r2,
+                   'r2adj': r2adj,
+                   'dw': dw,
+                   'meth': 'ols'}
+        return results
 
 def spectrum(y, num=None, smooth=False, smooth_window=None, smooth_method=None):
     """
