@@ -139,7 +139,7 @@ def ols(y, x, const=True, everything=False):
                   - r2adj: adjusted R-squared of the regression
                   - T: the number of observations used in the regression
                   - K: the number of regressors
-                  - OTHER STUFF HERE
+                  - TODO OTHER STUFF HERE
               This is returned if everything=True.
     """
     T = y.shape[0]
@@ -151,8 +151,8 @@ def ols(y, x, const=True, everything=False):
         x = np.concatenate((np.ones((T, 1)), x), axis=1)
 
     K = x.shape[1]
-    q, r = la.qr(x, mode='economic')
     if T < 10000:       # prefer numerical accuracy over algorithm speed
+        q, r = la.qr(x, mode='economic')
         inv_xx = la.solve(r.T * r, np.eye(K))  # (r'r) * a = I - solve for a
     else:               # prefer algorithm speed over numerical accuracy
         inv_xx = la.solve(x.T * x, np.eye(K))  # (x'x) * a = I - solve for a
@@ -192,6 +192,7 @@ def ols(y, x, const=True, everything=False):
                    'dw': dw,
                    'meth': 'ols'}
         return results
+
 
 def c_sja(n, p):  # needed for Johansen cointegration test
     jcp0 = [[2.9762,  4.1296,  6.9406],
