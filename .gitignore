@@ -184,4 +184,4 @@ $RECYCLE.BIN/
 .idea/codeStyles/codeStyleConfig.xml
 .idea/misc.xml
 .idea/time_series.iml
-tests/*.pdf
+tests/**.pdf
