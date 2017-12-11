@@ -139,7 +139,7 @@ def ols(y, x, const=True, everything=False):
                   - r2adj: adjusted R-squared of the regression
                   - T: the number of observations used in the regression
                   - K: the number of regressors
-                  - TODO OTHER STUFF HERE
+                  - TODO: other stuff here
               This is returned if everything=True.
     """
     T = y.shape[0]
@@ -298,6 +298,9 @@ def c_sjt(n, p):  # needed for Johansen cointegration test
     return jc
 
 
+# TODO: Johansen cointegration test
+
+
 def spectrum(y, num=None, smooth=False, smooth_window=None, smooth_method=None):
     """
     This function computes the spectrum of the time series X evaluated at the
@@ -351,9 +354,9 @@ def spectrum(y, num=None, smooth=False, smooth_window=None, smooth_method=None):
     # Computing the DFT of the time series and normalizing by length of series
     X = np.fft.rfft(x, n=N) / np.sqrt(T)
     # Computing the power spectrum
-    S = (np.abs(X) ** 2) / (2*np.pi)  # [*]
+    S = (np.abs(X) ** 2) / (2*np.pi)  # [*] TODO: figure out this one
     Ns = len(S)
-    # Note: the result is in the domain [0,pi], defined on equispaced points.
+    # Note: the result is in the domain [0,pi], defined on equi-spaced points.
     #       Our relevant grid can be obtained by using
     #       np.fft.rfftfreq(T, n=1/(2*np.pi))
     # Note: [BGP] might be wrong, we're sampling T/2+1 points in the interval
@@ -439,7 +442,6 @@ def bandpass(y, K, lower=None, upper=None, strip_bias=False, return_nans=False):
         # WARNING: with Numpy >= 1.12, np.flipud must be replaced with np.flip
         weights = np.insert(tmp, int(len(tmp) / 2), threshold / np.pi)
         return weights
-
 
     def highpass(K, threshold):
         """
