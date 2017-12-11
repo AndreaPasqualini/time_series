@@ -139,7 +139,7 @@ def ols(y, x, const=True, everything=False):
                   - r2adj: adjusted R-squared of the regression
                   - T: the number of observations used in the regression
                   - K: the number of regressors
-                  - TODO: other stuff here
+                  - TODO: complete documentation on returned values
               This is returned if everything=True.
     """
     T = y.shape[0]
@@ -299,6 +299,7 @@ def c_sjt(n, p):  # needed for Johansen cointegration test
 
 
 # TODO: Johansen cointegration test
+# TODO: refactor aux functions 'c_sja' and 'c_sjt' into other module
 
 
 def spectrum(y, num=None, smooth=False, smooth_window=None, smooth_method=None):
