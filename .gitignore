@@ -178,3 +178,9 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/python,windows,pycharm
+.idea/vcs.xml
+.idea/modules.xml
+.idea/codeStyles/Project.xml
+.idea/codeStyles/codeStyleConfig.xml
+.idea/misc.xml
+.idea/time_series.iml
