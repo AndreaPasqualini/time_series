@@ -259,23 +259,23 @@ def c_sjt(n, p):  # needed for Johansen cointegration test
             [212.4721, 219.4051, 232.8291],
             [255.6732, 263.2603, 277.9962],
             [302.9054, 311.1288, 326.9716]]
-    jcp1 = [[2.7055, 3.8415, 6.6349],
-            [13.4294, 15.4943, 19.9349],
-            [27.0669, 29.7961, 35.4628],
-            [44.4929, 47.8545, 54.6815],
-            [65.8202, 69.8189, 77.8202],
-            [91.1090, 95.7542, 104.9637],
+    jcp1 = [[2.7055,   3.8415,   6.6349],
+            [13.4294,  15.4943,  19.9349],
+            [27.0669,  29.7961,  35.4628],
+            [44.4929,  47.8545,  54.6815],
+            [65.8202,  69.8189,  77.8202],
+            [91.1090,  95.7542,  104.9637],
             [120.3673, 125.6185, 135.9825],
             [153.6341, 159.5290, 171.0905],
             [190.8714, 197.3772, 210.0366],
             [232.1030, 239.2468, 253.2526],
             [277.3740, 285.1402, 300.2821],
             [326.5354, 334.9795, 351.2150]]
-    jcp2 = [[2.7055, 3.8415, 6.6349],
-            [16.1619, 18.3985, 23.1485],
-            [32.0645, 35.0116, 41.0815],
-            [51.6492, 55.2459, 62.5202],
-            [75.1027, 79.3422, 87.7748],
+    jcp2 = [[2.7055,   3.8415,   6.6349],
+            [16.1619,  18.3985,  23.1485],
+            [32.0645,  35.0116,  41.0815],
+            [51.6492,  55.2459,  62.5202],
+            [75.1027,  79.3422,  87.7748],
             [102.4674, 107.3429, 116.9829],
             [133.7852, 139.2780, 150.0778],
             [169.0618, 175.1584, 187.1891],
@@ -302,7 +302,7 @@ def c_sjt(n, p):  # needed for Johansen cointegration test
 # TODO: refactor aux functions 'c_sja' and 'c_sjt' into other module
 
 
-def spectrum(y, num=None, smooth=False, smooth_window=None, smooth_method=None):
+def spectrum(y, num=None, smooth=False, smooth_window=None, smooth_method='flat'):
     """
     This function computes the spectrum of the time series X evaluated at the
     frequencies freq_grid.
@@ -318,20 +318,21 @@ def spectrum(y, num=None, smooth=False, smooth_window=None, smooth_method=None):
          satisfies y.shape = (T,) or y.shape(T,1).
     num : int
           Specifies the whole series length and coincides to len(y)
-          after having added the zeros. The default length is 1024
-          (FFT algorithms work better with series lengths that are
-          powers of 2). It is passed to input parameter 'n' in the function
-          numpy.fft.rfft().
+          after padding it with zeros. The default length is 1024 (FFT
+          algorithms work better with series lengths that are powers of 2).
+          It is passed to input parameter 'n' in the function numpy.fft.rfft().
     smooth : boolean
              takes a kernel-weighted average around each frequency, with
-             window width W. Such smoothing makes the Schuster's Periodogram
-             consistent.
+             window width 'smooth_window'. Such smoothing makes the Schuster's
+             Periodogram consistent.
     smooth_window : int
                     Specifies the bandwidth of the kernel averaging W. Must be
-                    odd.
-    smooth_method : {'hamming', 'hanning', 'bartlett', 'blackman'}
-                    If 'smooth=True', then 'smooth_window' and 'smooth_method'
-                    MUST be specified.
+                    odd and must be specified if 'smooth=True'.
+    smooth_method : {'flat', 'hamming', 'hanning', 'bartlett', 'blackman'}
+                    Has an effect only if 'smooth=True'. If smooth_method is
+                    'flat', then the rolling average uses flat weights (i.e., it
+                    becomes an arithmetic average as opposed to a weighted
+                    average).
 
     References
     ----------
@@ -349,7 +350,10 @@ def spectrum(y, num=None, smooth=False, smooth_window=None, smooth_method=None):
     elif y.ndim == 1:
         x = y[~np.isnan(y)]
 
-    N = num
+    if num is not None:
+        N = num
+    else:
+        N = 1024
     T = len(x)
 
     # Computing the DFT of the time series and normalizing by length of series
@@ -359,7 +363,7 @@ def spectrum(y, num=None, smooth=False, smooth_window=None, smooth_method=None):
     Ns = len(S)
     # Note: the result is in the domain [0,pi], defined on equi-spaced points.
     #       Our relevant grid can be obtained by using
-    #       np.fft.rfftfreq(T, n=1/(2*np.pi))
+    #       np.fft.rfftfreq(T, d=1/(2*np.pi))
     # Note: [BGP] might be wrong, we're sampling T/2+1 points in the interval
     #       [0,pi] and not T points! EDIT: well, we're sampling T
     #       non-necessarily-distinct points. Then we find out N/2 coincide.
@@ -371,7 +375,9 @@ def spectrum(y, num=None, smooth=False, smooth_window=None, smooth_method=None):
         return S  # then return the periodogram and exit the function
     else:  # if yes
         W = smooth_window  # length of the Hamming window (must be odd!)
-        if smooth_method == 'hamming':
+        if smooth_method == 'flat':
+            weights = np.ones((W,))
+        elif smooth_method == 'hamming':
             weights = np.hamming(W)
         elif smooth_method == 'hanning':
             weights = np.hanning(W)

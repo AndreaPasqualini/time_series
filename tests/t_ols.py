@@ -4,7 +4,7 @@ Author: Andrea Pasqualini
 Date created:  29 march 2017
 """
 import numpy as np
-import myfuns as my
+import tspy as ts
 import matplotlib.pyplot as plt
 
 T = 1000
@@ -12,7 +12,7 @@ y = np.zeros((T, 1))
 for t in range(1, T):
     y[t] = 0.75 * y[t-1] + np.random.normal()
 
-results = my.ols(y[1:T, :], y[0:T-1, :], everything=True)
+results = ts.ols(y[1:T, :], y[0:T-1, :], everything=True)
 
 yhat = results['fitted']
 
