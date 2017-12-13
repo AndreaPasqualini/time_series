@@ -28,11 +28,11 @@ def main():
 
     w, method = 271, 'blackman'
 
-    se = ts.spectrum(e, smooth=False, smooth_window=w, smooth_method=method)
-    sx = ts.spectrum(x, smooth=False, smooth_window=w, smooth_method=method)
-    sy = ts.spectrum(y, smooth=False, smooth_window=w, smooth_method=method)
+    se = ts.spectrum(e, smooth=True, smooth_window=w, smooth_method=method)
+    sx = ts.spectrum(x, smooth=True, smooth_window=w, smooth_method=method)
+    sy = ts.spectrum(y, smooth=True, smooth_window=w, smooth_method=method)
 
-    # freq = np.linspace(start=0, stop=np.pi, num=sx.size)
+    # freq2 = np.linspace(start=0, stop=np.pi, num=sx.size)
     freq = np.fft.rfftfreq(1024, d=1/(2*np.pi))
 
     tse = (1 / (2 * np.pi)) * np.ones(freq.shape)
