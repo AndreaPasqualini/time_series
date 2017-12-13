@@ -9,6 +9,7 @@ from scipy import linalg as la
 # from scipy import signal as sg
 from scipy import stats as st
 
+
 def lag(y, p=1, missing=None):
     """
     Given a matrix of time series 'y', this function computes its lagged
