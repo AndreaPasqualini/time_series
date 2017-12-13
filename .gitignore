@@ -185,3 +185,4 @@ $RECYCLE.BIN/
 .idea/misc.xml
 .idea/time_series.iml
 tests/**.pdf
+tests/t_spectrum.pdf
