@@ -7,6 +7,8 @@ The code you will find here must not be expected to be efficient, fast or well w
 If you want to fork and/or contribute to this repository, you're free to do so.
 Comments are welcome too!
 
+![Estimated spectra](./t_spectrum.png)
+
 
 ## Comments
 
