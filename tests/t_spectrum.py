@@ -15,7 +15,8 @@ def gen_ar(T, coeffs):
 
 
 def main():
-    T = 1500
+    T = 500
+    N = 2048
     e = np.zeros((T,))
 
     for t in range(T):
@@ -26,16 +27,16 @@ def main():
     x = gen_ar(T, [a1])
     y = gen_ar(T, [b1, b2])
 
-    w, method = 101, 'hamming'
+    w, method = 249, 'hamming'
 
-    se = ts.spectrum(e, smooth=False)
-    sx = ts.spectrum(x, smooth=False)
-    sy = ts.spectrum(y, smooth=False)
-    sse = ts.spectrum(e, smooth=True, smooth_window=w, smooth_method=method)
-    ssx = ts.spectrum(x, smooth=True, smooth_window=w, smooth_method=method)
-    ssy = ts.spectrum(y, smooth=True, smooth_window=w, smooth_method=method)
+    se = ts.spectrum(e,  num=N, smooth=False)
+    sx = ts.spectrum(x,  num=N, smooth=False)
+    sy = ts.spectrum(y,  num=N, smooth=False)
+    sse = ts.spectrum(e, num=N, smooth=True, smooth_window=w, smooth_method=method)
+    ssx = ts.spectrum(x, num=N, smooth=True, smooth_window=w, smooth_method=method)
+    ssy = ts.spectrum(y, num=N, smooth=True, smooth_window=w, smooth_method=method)
 
-    freq = np.fft.rfftfreq(1024, d=1/(2*np.pi))
+    freq = np.fft.rfftfreq(N, d=1/(2*np.pi))
 
     tse = (1 / (2 * np.pi)) * np.ones(freq.shape)
     tsx = (1 / (2 * np.pi)) * (1 / (1 + a1 ** 2 - 2 * a1 * np.cos(freq)))
@@ -66,9 +67,9 @@ def main():
     ax[0, 2].set_ylabel('Value')
     ax[0, 2].set_title('AR(2) process - sample realization')
 
-    ax[1, 0].plot(freq, se, color='darkgray', linewidth=0.5, label='Estimated')
-    ax[1, 0].plot(freq, sse, color='black', linewidth=1.5, label='Estimated (smooth)')
-    ax[1, 0].plot(freq, tse, color='red', linewidth=2.5, linestyle='dashed', label='Theoretical')
+    ax[1, 0].plot(freq, tse, color='red', linewidth=2, linestyle='dashed', label='Theoretical')
+    ax[1, 0].plot(freq, se, color='black', alpha=0.4, linewidth=0.5, label='Estimated')
+    ax[1, 0].plot(freq, sse, color='black', linewidth=2, label='Estimated (smooth)')
     ax[1, 0].legend()
     ax[1, 0].grid(alpha=0.3)
     ax[1, 0].xaxis.set_ticks(ticks)
@@ -76,9 +77,9 @@ def main():
     ax[1, 0].set_xlabel('Frequency')
     ax[1, 0].set_ylabel('Power density')
     ax[1, 0].set_title('Gaussian white noise - spectrum')
-    ax[1, 1].plot(freq, sx, color='darkgray', linewidth=0.5, label='Estimated')
-    ax[1, 1].plot(freq, ssx, color='black', linewidth=1.5, label='Estimated (smooth)')
-    ax[1, 1].plot(freq, tsx, color='red', linewidth=2.5, linestyle='dashed', label='Theoretical')
+    ax[1, 1].plot(freq, tsx, color='red', linewidth=2, linestyle='dashed', label='Theoretical')
+    ax[1, 1].plot(freq, sx, color='black', alpha=0.4, linewidth=0.5, label='Estimated')
+    ax[1, 1].plot(freq, ssx, color='black', linewidth=2, label='Estimated (smooth)')
     ax[1, 1].legend()
     ax[1, 1].grid(alpha=0.3)
     ax[1, 1].xaxis.set_ticks(ticks)
@@ -86,9 +87,9 @@ def main():
     ax[1, 1].set_xlabel('Frequency')
     ax[1, 1].set_ylabel('Power density')
     ax[1, 1].set_title('AR(1) process - spectrum')
-    ax[1, 2].plot(freq, sy, color='darkgray', linewidth=0.5, label='Estimated')
-    ax[1, 2].plot(freq, ssy, color='black', linewidth=1.5, label='Estimated (smooth)')
-    ax[1, 2].plot(freq, tsy, color='red', linewidth=2.5, linestyle='dashed', label='Theoretical')
+    ax[1, 2].plot(freq, tsy, color='red', linewidth=2, linestyle='dashed', label='Theoretical')
+    ax[1, 2].plot(freq, sy, color='black', alpha=0.4, linewidth=0.5, label='Estimated')
+    ax[1, 2].plot(freq, ssy, color='black', linewidth=2, label='Estimated (smooth)')
     ax[1, 2].legend()
     ax[1, 2].grid(alpha=0.3)
     ax[1, 2].xaxis.set_ticks(ticks)
@@ -98,7 +99,7 @@ def main():
     ax[1, 2].set_title('AR(2) process - spectrum')
 
     plt.tight_layout()
-    fig.savefig('t_spectrum.png')
+    fig.savefig('../t_spectrum.png')
     # plt.show()
 
 
