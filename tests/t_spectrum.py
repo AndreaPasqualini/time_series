@@ -48,7 +48,7 @@ def main():
     tick_labels = ['0', r'$\frac{1}{4} \pi$', r'$\frac{2}{4} \pi$',
                    r'$\frac{3}{4} \pi$', r'$\pi$']
 
-    fig, ax = plt.subplots(nrows=2, ncols=3, figsize=(15, 10))
+    fig, ax = plt.subplots(nrows=2, ncols=3, figsize=(12, 7))
 
     ax[0, 0].plot(e, color='black', linewidth=0.5)
     ax[0, 0].grid(alpha=0.3)
@@ -75,7 +75,7 @@ def main():
     ax[1, 0].xaxis.set_ticklabels(tick_labels)
     ax[1, 0].set_xlabel('Frequency')
     ax[1, 0].set_ylabel('Power density')
-    ax[1, 0].set_title('Spectrum (unsmoothed)')
+    ax[1, 0].set_title('Gaussian white noise - spectrum')
     ax[1, 1].plot(freq, sx, color='darkgray', linewidth=0.5, label='Estimated')
     ax[1, 1].plot(freq, ssx, color='black', linewidth=1.5, label='Estimated (smooth)')
     ax[1, 1].plot(freq, tsx, color='red', linewidth=2.5, linestyle='dashed', label='Theoretical')
@@ -85,7 +85,7 @@ def main():
     ax[1, 1].xaxis.set_ticklabels(tick_labels)
     ax[1, 1].set_xlabel('Frequency')
     ax[1, 1].set_ylabel('Power density')
-    ax[1, 1].set_title('Spectrum (unsmoothed)')
+    ax[1, 1].set_title('AR(1) process - spectrum')
     ax[1, 2].plot(freq, sy, color='darkgray', linewidth=0.5, label='Estimated')
     ax[1, 2].plot(freq, ssy, color='black', linewidth=1.5, label='Estimated (smooth)')
     ax[1, 2].plot(freq, tsy, color='red', linewidth=2.5, linestyle='dashed', label='Theoretical')
@@ -95,10 +95,10 @@ def main():
     ax[1, 2].xaxis.set_ticklabels(tick_labels)
     ax[1, 2].set_xlabel('Frequency')
     ax[1, 2].set_ylabel('Power density')
-    ax[1, 2].set_title('Spectrum (unsmoothed)')
+    ax[1, 2].set_title('AR(2) process - spectrum')
 
     plt.tight_layout()
-    fig.savefig('t_spectrum.pdf')
+    fig.savefig('t_spectrum.png')
     # plt.show()
 
 
