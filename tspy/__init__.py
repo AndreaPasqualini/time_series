@@ -95,6 +95,96 @@ def lagcat(y, p, missing=None):
     return ylagcat
 
 
+def gen_arma(size, ar=None, ma=None, roots=False, **kwargs_wn):
+    """
+    Generates a vector of T observations following an ARMA(p,q) structure:
+        y[t] = ar[0] * y[t-1] + ... + ar[p-1] * y[t-p] +
+               ma[0] * e[t-1] + ... + ma[q-1] * e[t-q] + e[t],
+    where y is the generated series and e is a Gaussian white noise process.
+    If ma=None, then an AR(p) process is returned. If ar=None, then an MA
+    process is returned. If ar=None and ma=None, then a Gaussian white noise is
+    returned.
+
+    Parameters
+    ----------
+    size : int
+
+    ar : array_like
+         The coefficients of the AR polynomial. Its size is the order of the
+         polynomial and is here denoted with p. See the formula above about the
+         ordering of the coefficients in the vector. The first element ar[0] is
+         discarded to keep consistency in the semantics of the code. The second
+         element ar[1] is the coefficient associated to the first lag of the
+         series. The last element ar[q-1] is the coefficient associated to
+         the latest lag of the series.
+    ma : array_like
+         The coefficients of the MA polynomial. Its size is the order of the
+         polynomial and is here denoted with q. See the formula above about the
+         ordering of the coefficients in the vector. The first element ma[0] is
+         the coefficient associated to the contemporaneous innovation in the
+         process. The second element ma[1] is the coefficient associated to
+         the first lagged innovation. The last element ma[p-1] is the
+         coefficient associated to the latest lagged innovation.
+    roots : bool
+            Specifies whether the arguments ar and ma are the roots of the
+            characteristic polynomial. By default this is set to False,
+            meaning that the passed arguments are the coefficients of the AR
+            and MA polynomial components.
+    **kwargs_wn : Union[int, float, list, tuple]
+                 Keyword arguments to be passed to the random number generator.
+                 For example, if the random number generator is
+                 np.random.normal, then 'loc' and 'scale' can be passed to
+                 control the generation of the white noise process.
+
+
+    Returns
+    -------
+    y : np.array
+         The generated time series that follows the specified ARMA(p,q)
+         structure. None of the generated points are initial conditions to
+         guarantee that the
+    """
+    if roots is True:
+        raise ValueError('Specification of ar or ma vectors of the '
+                         'polynomials is not supported yet.')
+    if ar is None and ma is None:
+        return np.random.normal(**kwargs_wn, size=(size,))
+    elif ar is None and ma is not None:  # if an MA process is requested
+        tmp_ma = np.array(ma)
+        cma = np.flipud(tmp_ma)
+        q = cma.size
+        tt = size + 20 * q
+        e = np.random.normal(**kwargs_wn, size=(tt,))
+        y = np.zeros((tt,))
+        for t in range(q, tt):
+            y[t] = cma @ e[t-q:t] + e[t]
+        return y[tt - size:]
+    elif ar is not None and ma is None:  # if an AR process is requested
+        tmp_ar = np.array(ar)
+        car = np.flipud(tmp_ar)
+        p = car.size
+        tt = size + 20 * p
+        e = np.random.normal(**kwargs_wn, size=(tt,))
+        y = np.zeros((tt,))
+        for t in range(p, tt):
+            y[t] = car @ y[t-p:t] + e[t]
+        return y[tt - size:]
+    else:  # if an ARMA process is requested
+        tmp_ar = np.array(ar)
+        tmp_ma = np.array(ma)
+        car = np.flipud(tmp_ar)
+        cma = np.flipud(tmp_ma)
+        p = car.size
+        q = cma.size
+        s = np.max([p, q])
+        tt = size + 20 * s
+        e = np.random.normal(**kwargs_wn, size=(tt,))
+        y = np.zeros((tt,))
+        for t in range(s, tt):
+            y[t] = car @ y[t-p:t] + cma @ e[t-q:t] + e[t]
+        return y[tt - size:]
+
+
 def ols(y, x, const=True, everything=False):
     """
     Runs a Least-Squares regression of a vector y on a vector x.
