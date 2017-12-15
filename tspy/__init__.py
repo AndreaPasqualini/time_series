@@ -360,7 +360,7 @@ def spectrum(y, num=None, smooth=False, smooth_window=None, smooth_method='flat'
     # Computing the DFT of the time series and normalizing by length of series
     X = np.fft.rfft(x, n=N, norm='ortho')
     # Computing the power spectrum
-    S = (np.abs(X) ** 2) / (2*np.pi)  # [*] TODO: figure out this one
+    S = (np.abs(X) ** 2) / (2*np.pi)  # TODO: figure out this one [*]
     Ns = len(S)
     # Note: the result is in the domain [0,pi], defined on equi-spaced points.
     #       Our relevant grid can be obtained by using

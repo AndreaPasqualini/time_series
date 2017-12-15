@@ -2,7 +2,7 @@ import numpy as np
 from numpy.random import normal as randn
 import tspy as ts
 import matplotlib.pyplot as plt
-plt.rc('text', usetex=False)
+plt.rc('text', usetex=True)
 
 
 def gen_ar(T, coeffs):
