@@ -2,11 +2,11 @@ import numpy as np
 from numpy.random import normal as randn
 import tspy as ts
 import matplotlib.pyplot as plt
-plt.rc('text', usetex=True)
+plt.rc('text', usetex=False)
 
 
-def gen_ar(T, coeff):
-    c = np.flipud(coeff)
+def gen_ar(T, coeffs):
+    c = np.flipud(coeffs)
     p = c.size
     x = np.zeros((T+p))
     for t in range(p, T):
@@ -100,7 +100,7 @@ def main():
 
     plt.tight_layout()
     fig.savefig('../t_spectrum.png')
-    plt.show()
+    # plt.show()
 
 
 if __name__ == '__main__':
