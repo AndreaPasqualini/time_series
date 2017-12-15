@@ -360,7 +360,7 @@ def spectrum(y, num=None, smooth=False, smooth_window=None, smooth_method='flat'
     # Computing the DFT of the time series and normalizing by length of series
     X = np.fft.rfft(x, n=N, norm='ortho')
     # Computing the power spectrum
-    S = (np.abs(X) ** 2) / (2*np.pi)  # [*] TODO: figure out this one
+    S = (np.abs(X) ** 2)
     Ns = len(S)
     # Note: the result is in the domain [0,pi], defined on equi-spaced points.
     #       Our relevant grid can be obtained by using
@@ -368,8 +368,6 @@ def spectrum(y, num=None, smooth=False, smooth_window=None, smooth_method='flat'
     # Note: [BGP] might be wrong, we're sampling T/2+1 points in the interval
     #       [0,pi] and not T points! EDIT: well, we're sampling T
     #       non-necessarily-distinct points. Then we find out N/2 coincide.
-    # [*] I discovered I get the correct thing by dividing by 2pi, but I don't
-    #     understand why. I must look this up.
 
     # Does the user want to smooth the periodogram?
     if not smooth:  # if not
