@@ -2,7 +2,7 @@ import numpy as np
 from numpy.random import normal as randn
 import tspy as ts
 import matplotlib.pyplot as plt
-plt.rc('text', usetex=False)
+plt.rc('text', usetex=True)
 
 
 def gen_ar(T, coeffs):
@@ -27,7 +27,7 @@ def main():
     x = gen_ar(T, [a1])
     y = gen_ar(T, [b1, b2])
 
-    w, method = 249, 'hamming'
+    w, method = 201, 'hamming'
 
     se = ts.spectrum(e,  num=N, smooth=False)
     sx = ts.spectrum(x,  num=N, smooth=False)
@@ -49,6 +49,13 @@ def main():
     tick_labels = ['0', r'$\frac{1}{4} \pi$', r'$\frac{2}{4} \pi$',
                    r'$\frac{3}{4} \pi$', r'$\pi$']
 
+    tpl_conf = {'color': 'red', 'linestyle': 'dashed', 'linewidth': 2,
+                'label': 'Theoretical'}
+    pl_conf = {'color': 'black', 'alpha': 0.4, 'linewidth':0.5,
+               'label': 'Estimated'}
+    spl_conf = {'color': 'black', 'linewidth': 2,
+                'label': 'Estimated (smooth)'}
+
     fig, ax = plt.subplots(nrows=2, ncols=3, figsize=(12, 7))
 
     ax[0, 0].plot(e, color='black', linewidth=0.5)
@@ -67,9 +74,9 @@ def main():
     ax[0, 2].set_ylabel('Value')
     ax[0, 2].set_title('AR(2) process - sample realization')
 
-    ax[1, 0].plot(freq, tse, color='red', linewidth=2, linestyle='dashed', label='Theoretical')
-    ax[1, 0].plot(freq, se, color='black', alpha=0.4, linewidth=0.5, label='Estimated')
-    ax[1, 0].plot(freq, sse, color='black', linewidth=2, label='Estimated (smooth)')
+    ax[1, 0].plot(freq, tse, **tpl_conf)
+    ax[1, 0].plot(freq, se, **pl_conf)
+    ax[1, 0].plot(freq, sse, **spl_conf)
     ax[1, 0].legend()
     ax[1, 0].grid(alpha=0.3)
     ax[1, 0].xaxis.set_ticks(ticks)
@@ -77,9 +84,9 @@ def main():
     ax[1, 0].set_xlabel('Frequency')
     ax[1, 0].set_ylabel('Power density')
     ax[1, 0].set_title('Gaussian white noise - spectrum')
-    ax[1, 1].plot(freq, tsx, color='red', linewidth=2, linestyle='dashed', label='Theoretical')
-    ax[1, 1].plot(freq, sx, color='black', alpha=0.4, linewidth=0.5, label='Estimated')
-    ax[1, 1].plot(freq, ssx, color='black', linewidth=2, label='Estimated (smooth)')
+    ax[1, 1].plot(freq, tsx, **tpl_conf)
+    ax[1, 1].plot(freq, sx, **pl_conf)
+    ax[1, 1].plot(freq, ssx, **spl_conf)
     ax[1, 1].legend()
     ax[1, 1].grid(alpha=0.3)
     ax[1, 1].xaxis.set_ticks(ticks)
@@ -87,9 +94,9 @@ def main():
     ax[1, 1].set_xlabel('Frequency')
     ax[1, 1].set_ylabel('Power density')
     ax[1, 1].set_title('AR(1) process - spectrum')
-    ax[1, 2].plot(freq, tsy, color='red', linewidth=2, linestyle='dashed', label='Theoretical')
-    ax[1, 2].plot(freq, sy, color='black', alpha=0.4, linewidth=0.5, label='Estimated')
-    ax[1, 2].plot(freq, ssy, color='black', linewidth=2, label='Estimated (smooth)')
+    ax[1, 2].plot(freq, tsy, **tpl_conf)
+    ax[1, 2].plot(freq, sy, **pl_conf)
+    ax[1, 2].plot(freq, ssy, **spl_conf)
     ax[1, 2].legend()
     ax[1, 2].grid(alpha=0.3)
     ax[1, 2].xaxis.set_ticks(ticks)
@@ -99,6 +106,7 @@ def main():
     ax[1, 2].set_title('AR(2) process - spectrum')
 
     plt.tight_layout()
+    fig.savefig('../t_spectrum.pdf')
     fig.savefig('../t_spectrum.png')
     # plt.show()
 
