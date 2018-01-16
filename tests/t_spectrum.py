@@ -29,12 +29,15 @@ def main():
 
     w, method = 201, 'hamming'
 
-    se = ts.spectrum(e,  num=N, smooth=False)
-    sx = ts.spectrum(x,  num=N, smooth=False)
-    sy = ts.spectrum(y,  num=N, smooth=False)
-    sse = ts.spectrum(e, num=N, smooth=True, smooth_window=w, smooth_method=method)
-    ssx = ts.spectrum(x, num=N, smooth=True, smooth_window=w, smooth_method=method)
-    ssy = ts.spectrum(y, num=N, smooth=True, smooth_window=w, smooth_method=method)
+    settings0 = {'smooth': False}
+    settings1 = {'smooth': True, 'smooth_window': w, 'smooth_method': method}
+
+    se = ts.spectrum(e,  num=N, **settings0)
+    sx = ts.spectrum(x,  num=N, **settings0)
+    sy = ts.spectrum(y,  num=N, **settings0)
+    sse = ts.spectrum(e, num=N, **settings1)
+    ssx = ts.spectrum(x, num=N, **settings1)
+    ssy = ts.spectrum(y, num=N, **settings1)
 
     freq = np.fft.rfftfreq(N, d=1/(2*np.pi))
 
